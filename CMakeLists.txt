@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(windowing LANGUAGES CXX C VERSION 0.0.1)
 
 set(SRC src/main.cpp src/glad.c)
+set(OpenGL_GL_PREFERENCE GLVND)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
