@@ -1,21 +1,12 @@
+#include <cmath>
+#include <filesystem>
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
+#include <fstream>
 #include <iostream>
 
 #define DBG(val) std::cerr << val << std::endl
-
-const char *v_shader_src = "#version 330 core\n"
-                           "layout (location = 0) in vec3 aPos;\n"
-                           "void main() {\n"
-                           "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                           "}\0";
-
-const char *f_shader_src = "#version 330 core\n"
-                           "out vec4 FragColor;\n"
-                           "void main() {\n"
-                           "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-                           "}\0";
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
@@ -28,9 +19,23 @@ void framebuffer_size_callback(GLFWwindow *window, int height, int width) {
   glViewport(0, 0, width, height);
 }
 
+std::string read_file(std::filesystem::path name) {
+  std::ifstream vert(name);
+  std::string str;
+  std::string file_contents;
+  while (std::getline(vert, str)) {
+    file_contents += str;
+    file_contents.push_back('\n');
+  }
+  vert.close();
+  return file_contents;
+}
+
 uint init_program(GLFWwindow *window) {
+  std::string v_shader_src = read_file("../src/shader.vert");
+  const char *v_shader_data = v_shader_src.c_str();
   unsigned int v_shader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(v_shader, 1, &v_shader_src, NULL);
+  glShaderSource(v_shader, 1, &v_shader_data, NULL);
   glCompileShader(v_shader);
 
   int success;
@@ -41,8 +46,10 @@ uint init_program(GLFWwindow *window) {
     DBG("FAILED: could not compile v_shader: " << infoBuf);
   }
 
+  std::string f_shader_src = read_file("../src/shader.frag");
+  const char *f_shader_data = f_shader_src.c_str();
   unsigned int f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(f_shader, 1, &f_shader_src, NULL);
+  glShaderSource(f_shader, 1, &f_shader_data, NULL);
   glCompileShader(f_shader);
 
   glGetShaderiv(f_shader, GL_COMPILE_STATUS, &success);
@@ -67,6 +74,40 @@ uint init_program(GLFWwindow *window) {
   glDeleteShader(v_shader);
   glDeleteShader(f_shader);
   return program;
+}
+
+uint triangle_vao() {
+  // Setup the vertex array object
+  uint VAO;
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
+
+  // First a vertex buffer to store the vertices
+  float vertices[] = {
+      -0.5f, 0.5f,  0.0f, 0.5f,  0.5f,  0.0f,
+      0.5f,  -0.5f, 0.0f, -0.5f, -0.5f, 0.0f,
+  };
+  uint VBO;
+  glGenBuffers(1, &VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  // Then an element buffer to store the element indices
+  uint indices[] = {0, 1, 3, 1, 2, 3};
+  uint EBO;
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+               GL_STATIC_DRAW);
+
+  // Declares the locations for use with shader (i think)
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+
+  // Re-bind the default VAO
+  glBindVertexArray(0);
+
+  return VAO;
 }
 
 int main() {
@@ -95,30 +136,28 @@ int main() {
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetKeyCallback(window, key_callback);
 
-  uint VAO;
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
-
-  float vertices[] = {
-      -0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f, -0.5f, 0.0f,
-  };
-  unsigned int VBO;
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
+  // Configure the shader program
   int program = init_program(window);
   glUseProgram(program);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
+
+  // Get the triangle VAO
+  uint vao_default = 0;
+  uint vao_rect = triangle_vao();
+
+  int vertexLoc = glGetUniformLocation(program, "VertexColor");
 
   while (!glfwWindowShouldClose(window)) {
     glClearColor(.2f, 0.0f, .2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(program);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    float time = glfwGetTime();
+    float green = (sin(time) / 2.0f) + 0.5f;
+	glUniform4f(vertexLoc, 0.0f, green, 1.0f, 1.0f);
+    glBindVertexArray(vao_rect);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBindVertexArray(vao_default);
 
     glfwPollEvents();
     glfwSwapBuffers(window);
