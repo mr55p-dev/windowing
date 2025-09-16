@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #define DBG(val) std::cerr << val << std::endl
 
@@ -19,7 +20,7 @@ void framebuffer_size_callback(GLFWwindow *window, int height, int width) {
   glViewport(0, 0, width, height);
 }
 
-std::string read_file(std::filesystem::path name) {
+std::string read_file(std::string name) {
   std::ifstream vert(name);
   std::string str;
   std::string file_contents;
@@ -31,7 +32,7 @@ std::string read_file(std::filesystem::path name) {
   return file_contents;
 }
 
-uint init_program(GLFWwindow *window) {
+unsigned int init_program(GLFWwindow *window) {
   std::string v_shader_src = read_file("../src/shader.vert");
   const char *v_shader_data = v_shader_src.c_str();
   unsigned int v_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -59,7 +60,7 @@ uint init_program(GLFWwindow *window) {
     DBG("FAILED: could not compile f_shader: " << infoBuf);
   }
 
-  uint program = glCreateProgram();
+  unsigned int program = glCreateProgram();
   glAttachShader(program, v_shader);
   glAttachShader(program, f_shader);
   glLinkProgram(program);
@@ -76,9 +77,9 @@ uint init_program(GLFWwindow *window) {
   return program;
 }
 
-uint triangle_vao() {
+unsigned int triangle_vao() {
   // Setup the vertex array object
-  uint VAO;
+  unsigned int VAO;
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
 
@@ -87,14 +88,14 @@ uint triangle_vao() {
       -0.5f, 0.5f,  0.0f, 0.5f,  0.5f,  0.0f,
       0.5f,  -0.5f, 0.0f, -0.5f, -0.5f, 0.0f,
   };
-  uint VBO;
+  unsigned int VBO;
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   // Then an element buffer to store the element indices
-  uint indices[] = {0, 1, 3, 1, 2, 3};
-  uint EBO;
+  unsigned int indices[] = {0, 1, 3, 1, 2, 3};
+  unsigned int EBO;
   glGenBuffers(1, &EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
@@ -141,8 +142,8 @@ int main() {
   glUseProgram(program);
 
   // Get the triangle VAO
-  uint vao_default = 0;
-  uint vao_rect = triangle_vao();
+  unsigned int vao_default = 0;
+  unsigned int vao_rect = triangle_vao();
 
   int vertexLoc = glGetUniformLocation(program, "VertexColor");
 
