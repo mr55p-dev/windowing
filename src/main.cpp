@@ -33,7 +33,7 @@ std::string read_file(std::string name) {
 }
 
 unsigned int init_program(GLFWwindow *window) {
-  std::string v_shader_src = read_file("../src/shader.vert");
+  std::string v_shader_src = read_file("/Users/ellis/Git/windowing/src/shaders/shader.vert");
   const char *v_shader_data = v_shader_src.c_str();
   unsigned int v_shader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(v_shader, 1, &v_shader_data, NULL);
@@ -47,7 +47,7 @@ unsigned int init_program(GLFWwindow *window) {
     DBG("FAILED: could not compile v_shader: " << infoBuf);
   }
 
-  std::string f_shader_src = read_file("../src/shader.frag");
+  std::string f_shader_src = read_file("/Users/ellis/Git/windowing/src/shaders/shader.frag");
   const char *f_shader_data = f_shader_src.c_str();
   unsigned int f_shader = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(f_shader, 1, &f_shader_data, NULL);
