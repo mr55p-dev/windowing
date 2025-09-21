@@ -8,9 +8,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set(SHADERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/)
 file(GLOB SHADERS "${SHADERS_DIR}/*.vert" "${SHADERS_DIR}/*.frag")
-set_source_files_properties(${SHADERS} PROPERTIES LANGUAGE GLSL)
 
-set(SRC src/main.cpp)
+set(SRC src/main.cpp src/shader.hpp src/debug.hpp)
 set(VENDOR src/glad.c)
 set(ALL_SRC ${SRC} ${VENDOR} ${SHADERS})
 
