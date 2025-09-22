@@ -87,8 +87,8 @@ int main() {
   // Configure the shader program
   //
 
-  Shader shader("/home/ellis/src/windowing/src/shaders/shader.vert",
-                "/home/ellis/src/windowing/src/shaders/shader.frag");
+  Shader shader("../src/shaders/shader.vert",
+                "../src/shaders/shader.frag");
 
   // Get the triangle VAO
   unsigned int vao_default = 0;
