@@ -17,28 +17,28 @@ public:
 	  DBG("Got vertex path" << vertexPath);
     std::string vertexSource;
     std::string fragmentSource;
-    std::ifstream vertexFile(vertexPath);
-    std::ifstream fragmentFile(fragmentPath);
+    std::ifstream vertexFile;
+    std::ifstream fragmentFile;
     vertexFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fragmentFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     try {
       // open the files
       vertexFile.open(vertexPath);
-      // fragmentFile.open(fragmentPath);
+      fragmentFile.open(fragmentPath);
       std::stringstream vertexStream, fragmentStream;
 
       // read the file buffer into a stream
       vertexStream << vertexFile.rdbuf();
-      // fragmentStream << fragmentFile.rdbuf();
+      fragmentStream << fragmentFile.rdbuf();
 
       // close the files
       vertexFile.close();
-      // fragmentFile.close();
+      fragmentFile.close();
 
       // convert the stream into a string
       vertexSource = vertexStream.str();
-      // fragmentSource = fragmentStream.str();
+      fragmentSource = fragmentStream.str();
     } catch (std::ifstream::failure e) {
       DBG("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << e.code() << e.what());
     }
@@ -61,7 +61,7 @@ public:
       DBG("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog);
     }
 
-    unsigned int fShaderHandle = glCreateShader(GL_VERTEX_SHADER);
+    unsigned int fShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fShaderHandle, 1, &fShaderCode, NULL);
     glCompileShader(fShaderHandle);
 
@@ -105,3 +105,6 @@ public:
 	  glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
   }
 };
+
+
+
