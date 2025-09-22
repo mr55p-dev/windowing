@@ -25,23 +25,21 @@ unsigned int triangle_vao() {
   // First a vertex buffer to store the vertices
   float vertices[] = {
       // clang-format off
-      -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f, 
-	  0.0f,  0.5f,  0.0f,   0.0f, 1.0f, 0.0f, 
-	  0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,
+	  //    -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f, 
+	  // 0.0f,  0.5f,  0.0f,   0.0f, 1.0f, 0.0f, 
+	  // 0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,
+      // clang-format on
+      // clang-format off
+	  -0.5f, 0.5f,  0.0f,   1.0f, 0.0f, 0.0f,
+	  0.5f,  0.5f,  0.0f,   0.0f, 1.0f, 0.0f,
+	  0.5f,  -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,
+	  -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 0.0f,
       // clang-format on
   };
   unsigned int VBO;
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  // Then an element buffer to store the element indices
-  // unsigned int indices[] = {0, 1, 3, 1, 2, 3};
-  // unsigned int EBO;
-  // glGenBuffers(1, &EBO);
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-  //              GL_STATIC_DRAW);
 
   // Declares the first set of vertex attributes (and sends to shader at loc 0)
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
@@ -52,6 +50,14 @@ unsigned int triangle_vao() {
                         (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
+  // Then an element buffer to store the element indices
+  unsigned int indices[] = {0, 1, 3, 1, 2, 3};
+  unsigned int EBO;
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+               GL_STATIC_DRAW);
+
   // Re-bind the default VAO
   glBindVertexArray(0);
 
@@ -59,7 +65,7 @@ unsigned int triangle_vao() {
 }
 
 int main() {
-  int height = 600, width = 800;
+  int height = 800, width = 800;
 
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -87,8 +93,7 @@ int main() {
   // Configure the shader program
   //
 
-  Shader shader("../src/shaders/shader.vert",
-                "../src/shaders/shader.frag");
+  Shader shader("../src/shaders/shader.vert", "../src/shaders/shader.frag");
 
   // Get the triangle VAO
   unsigned int vao_default = 0;
@@ -99,13 +104,14 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // set the shader green value
-    float time = glfwGetTime();
-    float green = (sin(time) / 2.0f) + 0.5f;
+    // float time = glfwGetTime();
+	float time = 0;
     shader.use();
-    shader.setFloat("VertexColor", green);
+	shader.setFloat("cosTheta", cos(time));
+	shader.setFloat("sinTheta", sin(time));
 
     glBindVertexArray(vao_rect);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
