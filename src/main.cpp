@@ -104,8 +104,8 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // set the shader green value
-    // float time = glfwGetTime();
-	float time = 0;
+    float time = glfwGetTime();
+	// float time = 0;
     shader.use();
 	shader.setFloat("cosTheta", cos(time));
 	shader.setFloat("sinTheta", sin(time));
