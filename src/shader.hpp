@@ -14,7 +14,6 @@ public:
   unsigned int ID; // program id
 
   Shader(const char *vertexPath, const char *fragmentPath) {
-	  DBG("Got vertex path" << vertexPath);
     std::string vertexSource;
     std::string fragmentSource;
     std::ifstream vertexFile;
